@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INVENTIX | Control de inventario</title>
+  
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#08111f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="INVENTIX">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon">I</span>
+      <div>
+        <h2>INVENTIX</h2>
+        <small>Control inteligente</small>
+      </div>
+    </div>
+
+    <p class="menu-title">MENÚ PRINCIPAL</p>
+
+    <nav>
+      <a href="#inicio" class="nav-link active">▦ Dashboard</a>
+      <a href="#inventario" class="nav-link">▤ Inventario</a>
+      <a href="#registro" class="nav-link">＋ Nuevo producto</a>
+      <a href="#ventas" class="nav-link">🛒 Registrar venta</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <span class="status-dot"></span>
+      Sistema operativo
+      <small>INVENTIX v1.0</small>
+    </div>
+  </aside>
+
+  <main class="main-content" id="inicio">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">PANEL DE ADMINISTRACIÓN</p>
+        <h1>Control de inventario</h1>
+        <p class="subtitle">Administra tus productos y ventas en un solo lugar.</p>
+      </div>
+      <div class="today" id="today"></div>
+    </header>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-icon blue">▤</div>
+        <p>Productos registrados</p>
+        <h2 id="totalProducts">0</h2>
+        <small>Referencias diferentes</small>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon purple">▥</div>
+        <p>Unidades disponibles</p>
+        <h2 id="totalUnits">0</h2>
+        <small>Existencias actuales</small>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon green">$</div>
+        <p>Valor del inventario</p>
+        <h2 id="inventoryValue">L 0.00</h2>
+        <small>Según el precio registrado</small>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon orange">!</div>
+        <p>Stock bajo</p>
+        <h2 id="lowStock">0</h2>
+        <small>Productos con 5 unidades o menos</small>
+      </article>
+    </section>
+
+    <section class="panel" id="registro">
+      <div class="section-heading">
+        <div>
+          <h2 id="formTitle">Registrar producto</h2>
+          <p>Completa los datos del producto.</p>
+        </div>
+        <span class="section-tag">FORMULARIO</span>
+      </div>
+
+      <form id="productForm">
+        <input type="hidden" id="productId">
+
+        <div class="form-grid">
+          <label>
+            Nombre del producto
+            <input id="name" type="text" placeholder="Ej. Audífonos Bluetooth" required maxlength="80">
+          </label>
+
+          <label>
+            Categoría
+            <select id="category" required>
+              <option value="">Selecciona una categoría</option>
+              <option>Computación</option>
+              <option>Celulares</option>
+              <option>Audio</option>
+              <option>Accesorios</option>
+              <option>Hogar</option>
+              <option>Otros</option>
+            </select>
+          </label>
+
+          <label>
+            Precio unitario (L)
+            <input id="price" type="number" min="0.01" step="0.01" placeholder="250.00" required>
+          </label>
+
+          <label>
+            Cantidad disponible
+            <input id="quantity" type="number" min="0" step="1" placeholder="20" required>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" id="saveButton">＋ Guardar producto</button>
+          <button type="button" class="btn-secondary" id="cancelEdit" hidden>Cancelar edición</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel" id="inventario">
+      <div class="section-heading inventory-heading">
+        <div>
+          <h2>Inventario de productos</h2>
+          <p>Consulta, busca y administra tus existencias.</p>
+        </div>
+        <button type="button" class="btn-secondary" id="exportButton">↓ Exportar CSV</button>
+      </div>
+
+      <div class="filters">
+        <input type="search" id="search" placeholder="⌕ Buscar producto...">
+        <select id="categoryFilter">
+          <option value="">Todas las categorías</option>
+          <option>Computación</option>
+          <option>Celulares</option>
+          <option>Audio</option>
+          <option>Accesorios</option>
+          <option>Hogar</option>
+          <option>Otros</option>
+        </select>
+        <select id="stockFilter">
+          <option value="">Todo el stock</option>
+          <option value="low">Stock bajo</option>
+          <option value="out">Agotados</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Unidades</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="productTable"></tbody>
+        </table>
+      </div>
+      <p id="productCount" class="table-footer">0 productos</p>
+    </section>
+
+    <section class="panel" id="ventas">
+      <div class="section-heading">
+        <div>
+          <h2>Registrar venta</h2>
+          <p>Selecciona un producto y registra las unidades vendidas.</p>
+        </div>
+        <span class="section-tag">VENTAS</span>
+      </div>
+
+      <form id="saleForm">
+        <div class="form-grid sale-grid">
+          <label>
+            Producto
+            <select id="saleProduct" required>
+              <option value="">Selecciona un producto</option>
+            </select>
+          </label>
+
+          <label>
+            Unidades vendidas
+            <input type="number" id="saleQuantity" min="1" step="1" value="1" required>
+          </label>
+
+          <label>
+            Total de la venta
+            <input type="text" id="saleTotal" value="L 0.00" readonly>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary">✓ Confirmar venta</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Últimas ventas</h2>
+          <p>Historial de las ventas registradas en este navegador.</p>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Producto</th>
+              <th>Unidades</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="salesTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      <p>INVENTIX © 2026 · Sistema de control de inventario</p>
+      <p>Desarrollado con HTML, CSS y JavaScript</p>
+    </footer>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
